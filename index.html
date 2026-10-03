@@ -361,7 +361,8 @@ function showResult(){
 }
 
 async function shareResult(){
-  const text=`🌸 脳内お花畑診断 🌸\n私のタイプは「${document.getElementById("resultType").textContent}」でした！\n${document.getElementById("score").textContent}`;
+  const siteUrl = window.location.href;
+  const text=`🌸 脳内お花畑診断 🌸\n私のタイプは「${document.getElementById("resultType").textContent}」でした！\n${document.getElementById("score").textContent}\n\n👇 診断はこちら\n${siteUrl}`;
 
   if(navigator.share){
     try{
