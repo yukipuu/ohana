@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脳内お花畑診断🌸</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  background:linear-gradient(135deg,#fff7fb,#f5fff4);
+  color:#5b4a4a;
+}
+.container{
+  max-width:560px;
+  margin:auto;
+  min-height:100vh;
+  padding:18px;
+}
+.card{
+  background:#fff;
+  border-radius:28px;
+  padding:22px;
+  box-shadow:0 8px 30px rgba(120,80,100,.12);
+  text-align:center;
+}
+img{
+  max-width:100%;
+  height:auto;
+  display:block;
+  margin:auto;
+}
+.top-img{border-radius:22px;margin-bottom:18px}
+h1{font-size:28px;margin:8px 0;color:#e85b86}
+.sub{font-size:14px;line-height:1.8;margin-bottom:20px}
+button{
+  border:0;
+  border-radius:999px;
+  padding:14px 24px;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.start{
+  background:linear-gradient(90deg,#ff82a8,#ffb36b);
+  color:#fff;
+  width:85%;
+}
+.question-number{font-size:14px;color:#aaa;margin-bottom:8px}
+.question{font-size:20px;font-weight:bold;line-height:1.6;margin:10px 0 18px}
+.options{display:grid;gap:11px}
+.option{
+  width:100%;
+  background:#fff7fb;
+  color:#654f58;
+  border:2px solid #ffd4e2;
+  text-align:left;
+  padding:14px 16px;
+  border-radius:18px;
+  transition:.15s;
+}
+.option:hover{background:#fff0f6;transform:translateY(-1px)}
+.progress{
+  height:9px;
+  background:#eee;
+  border-radius:99px;
+  overflow:hidden;
+  margin:15px 0 22px;
+}
+.progress-bar{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,#ff83a8,#ffd166,#8bd17c);
+  transition:.3s;
+}
+.loading{font-size:19px;line-height:2}
+.loading .flower{font-size:48px;animation:bloom 1s infinite alternate}
+@keyframes bloom{to{transform:scale(1.15) rotate(5deg)}}
+.result-title{font-size:15px;color:#999}
+.result-type{font-size:27px;color:#e85b86;margin:6px 0 12px;font-weight:bold}
+.score{
+  display:inline-block;
+  background:#fff2b8;
+  border-radius:999px;
+  padding:9px 17px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+.result-text{
+  text-align:left;
+  line-height:1.8;
+  background:#fffaf1;
+  border-radius:20px;
+  padding:17px;
+  margin:15px 0;
+}
+.share{
+  background:#8bcf88;
+  color:#fff;
+  margin:5px;
+}
+.retry{
+  background:#eee;
+  color:#666;
+  margin:5px;
+}
+.hidden{display:none}
+.small{font-size:12px;color:#aaa;margin-top:15px}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <section id="start" class="card">
+    <img src="top.PNG" alt="脳内お花畑診断" class="top-img">
+    <h1>脳内お花畑診断🌸</h1>
+    <div class="sub">
+      あなたの頭の中には、<br>
+      いったいどんなお花が咲いてる？<br>
+      <b>直感で答えてね♡</b>
+    </div>
+    <button class="start" onclick="startQuiz()">🌷 診断スタート！</button>
+    <div class="small">全10問・約1分</div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card hidden">
+    <div class="question-number" id="questionNumber"></div>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+  </section>
+
+  <!-- LOADING -->
+  <section id="loading" class="card hidden">
+    <div class="loading">
+      <div class="flower">🌸</div>
+      あなたの脳内を解析中……<br>
+      お花を数えています……<br>
+      <span id="loadingText">ちょっと増えすぎています。</span>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="card hidden">
+    <div class="result-title">あなたの脳内お花畑は……</div>
+    <div class="result-type" id="resultType"></div>
+    <div class="score" id="score"></div>
+    <img id="resultImage" alt="診断結果">
+    <div class="result-text" id="resultText"></div>
+    <button class="share" onclick="shareResult()">📱 結果をシェア</button>
+    <button class="retry" onclick="location.reload()">🌱 もう一度診断</button>
+  </section>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q:"予定のない休日。いちばん近いのは？",
+    a:[
+      ["気になっていたことを突然始める","idea"],
+      ["誰かと遊びたい！","happy"],
+      ["家でのんびり妄想タイム","dream"],
+      ["寝る。とにかく寝る。","escape"]
+    ]
+  },
+  {
+    q:"友達から突然「今から遊ばない？」と連絡がきたら？",
+    a:[
+      ["もちろん行く！楽しそう！","happy"],
+      ["何するの？どこ行くの？計画しよう！","passion"],
+      ["楽しそうな妄想が一気に広がる","dream"],
+      ["今日は家から出たくない……","escape"]
+    ]
+  },
+  {
+    q:"誰かが困っているのを見つけたら？",
+    a:[
+      ["気づいたら手伝っている","care"],
+      ["まず自分に何ができるか考える","passion"],
+      ["一緒に解決策を考える","idea"],
+      ["心配だけど、そっと見守る","love"]
+    ]
+  },
+  {
+    q:"理想のデート・お出かけは？",
+    a:[
+      ["花や景色を見ながらゆっくり","love"],
+      ["行ったことのない場所へ冒険！","passion"],
+      ["かわいいものをいっぱい見たい","happy"],
+      ["家で映画を見ながらまったり","dream"]
+    ]
+  },
+  {
+    q:"突然いいアイデアを思いついた！あなたは？",
+    a:[
+      ["すぐ誰かに話す！","idea"],
+      ["今すぐやってみる！","passion"],
+      ["さらに妄想を膨らませる","dream"],
+      ["……いつかやろう","escape"]
+    ]
+  },
+  {
+    q:"プレゼントを選ぶなら？",
+    a:[
+      ["相手が喜ぶものを徹底的に考える","care"],
+      ["見た瞬間に『これ！』と決める","happy"],
+      ["思い出や意味を大事にする","love"],
+      ["自分が欲しいものを選びがち","all"]
+    ]
+  },
+  {
+    q:"嫌なことがあったとき、あなたは？",
+    a:[
+      ["寝たら忘れる！","happy"],
+      ["誰かに聞いてもらう","care"],
+      ["別の楽しいことを考える","dream"],
+      ["しばらく現実から離れる","escape"]
+    ]
+  },
+  {
+    q:"旅行に行くなら？",
+    a:[
+      ["予定をぎっしり組む","passion"],
+      ["面白そうな場所を全部入れる","all"],
+      ["雰囲気と景色重視♡","love"],
+      ["ノープランでその場の気分","happy"]
+    ]
+  },
+  {
+    q:"あなたのスマホのメモには……",
+    a:[
+      ["思いついたアイデアが大量","idea"],
+      ["やることリストがいっぱい","care"],
+      ["いつかやりたいことがいっぱい","dream"],
+      ["見返すと自分でもよく分からない","all"]
+    ]
+  },
+  {
+    q:"最後に。自分を一言で表すなら？",
+    a:[
+      ["なんとかなる！","happy"],
+      ["やると決めたらやる！","passion"],
+      ["想像力なら負けない","dream"],
+      ["人のことを放っておけない","care"]
+    ]
+  }
+];
+
+const types = {
+  dream:{
+    name:"妄想満開タイプ",
+    image:"dream.PNG",
+    text:"頭の中では、いつでも季節が春。『もしこうなったら？』から始まる妄想がどんどん育つタイプ。想像力が豊かで、日常の小さなことにも物語を見つけます。"
+  },
+  happy:{
+    name:"ハッピー変換タイプ",
+    image:"happy.PNG",
+    text:"嫌なことがあっても、どこかで『まあ、なんとかなるやろ！』に変換できる人。周りまで明るくする、太陽みたいなお花畑です。"
+  },
+  love:{
+    name:"ロマンチックタイプ",
+    image:"love.PNG",
+    text:"日常の中に『ときめき』や『意味』を見つけるタイプ。景色、思い出、言葉、人とのつながりを大切にする、心の花束系です。"
+  },
+  care:{
+    name:"お世話焼きタイプ",
+    image:"care.PNG",
+    text:"気づいたら人の花壇まで水やりしているタイプ。頼られると放っておけず、ついつい人のために動いちゃう。優しさ満開です。"
+  },
+  idea:{
+    name:"アイデア爆発タイプ",
+    image:"idea.PNG",
+    text:"『そうだ！』が次から次へと降ってくる、ひらめき型。思いつきが面白い方向へ飛びやすく、脳内では常に新企画が芽を出しています。"
+  },
+  escape:{
+    name:"現実逃避タイプ",
+    image:"escape.PNG",
+    text:"現実がちょっとしんどいときは、脳内のお花畑へ避難します。休む・寝る・妄想するも立派な回復方法。無理しすぎない才能があります。"
+  },
+  all:{
+    name:"全部盛りタイプ",
+    image:"all.PNG",
+    text:"ひとつに絞れない？それがあなたです🤣 好奇心、優しさ、妄想、行動力、ときめき……いろんな花が一斉に咲いています。"
+  },
+  passion:{
+    name:"情熱まっしぐらタイプ",
+    image:"passion.PNG",
+    text:"『やる！』と決めたら一直線。考えるより先に動き出すこともある、情熱型のお花畑。勢いがついたら止まりません。"
+  }
+};
+
+let current=0;
+let scores={};
+
+function startQuiz(){
+  current=0;
+  scores={};
+  Object.keys(types).forEach(k=>scores[k]=0);
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  const item=questions[current];
+  document.getElementById("questionNumber").textContent=`Q${current+1} / ${questions.length}`;
+  document.getElementById("progressBar").style.width=`${current/questions.length*100}%`;
+  document.getElementById("question").textContent=item.q;
+
+  const box=document.getElementById("options");
+  box.innerHTML="";
+  item.a.forEach(([text,type])=>{
+    const b=document.createElement("button");
+    b.className="option";
+    b.textContent=text;
+    b.onclick=()=>answer(type);
+    box.appendChild(b);
+  });
+}
+
+function answer(type){
+  scores[type]=(scores[type]||0)+1;
+  current++;
+  if(current<questions.length){
+    showQuestion();
+  }else{
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("loading").classList.remove("hidden");
+    setTimeout(showResult,1200);
+  }
+}
+
+function showResult(){
+  let winner=Object.keys(scores).sort((a,b)=>scores[b]-scores[a])[0];
+
+  // 同点が多い場合は「全部盛り」に寄せる
+  const max=Math.max(...Object.values(scores));
+  const top=Object.keys(scores).filter(k=>scores[k]===max);
+  if(top.length>=3) winner="all";
+
+  const t=types[winner];
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  const score=Math.min(100,Math.round(45+(max/Math.max(1,total))*55));
+
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("resultType").textContent=t.name;
+  document.getElementById("score").textContent=`🌸 脳内お花畑指数 ${score}％`;
+  document.getElementById("resultImage").src=t.image;
+  document.getElementById("resultText").innerHTML=
+    `<b>💐 あなたの特徴</b><br>${t.text}<br><br>
+     <b>🌱 脳内の様子</b><br>
+     ${score>=85 ? "現在、かなり満開です。お花が増殖しています🤣" :
+       score>=70 ? "かなり花が咲いています。毎日楽しそう！" :
+       "まだつぼみもありますが、ちゃんと春の気配があります♡"}`;
+}
+
+async function shareResult(){
+  const text=`🌸 脳内お花畑診断 🌸\n私のタイプは「${document.getElementById("resultType").textContent}」でした！\n${document.getElementById("score").textContent}`;
+
+  if(navigator.share){
+    try{
+      await navigator.share({title:"脳内お花畑診断🌸",text});
+    }catch(e){}
+  }else{
+    try{
+      await navigator.clipboard.writeText(text);
+      alert("結果をコピーしたよ🌸");
+    }catch(e){
+      alert(text);
+    }
+  }
+}
+</script>
+</body>
+</html>
